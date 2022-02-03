@@ -1,14 +1,31 @@
 import React, { useState } from "react";
 import { useQuery, useLazyQuery, useMutation, gql } from "@apollo/client";
 
+// const QUERY_ALL_USERS = gql`
+//   query GetAllUsers {
+//     users {
+//       id
+//       name
+//       username
+//       age
+//       nationality
+//     }
+//   }
+// `;
+
 const QUERY_ALL_USERS = gql`
   query GetAllUsers {
     users {
-      id
-      name
-      username
-      age
-      nationality
+      ... on UsersSuccessfulResult {
+        users {
+          id
+          name
+        }
+      }
+
+      ... on UsersErrorResult {
+        message
+      }
     }
   }
 `;
@@ -23,7 +40,7 @@ const QUERY_ALL_MOVIES = gql`
 `;
 
 const GET_MOVIE_BY_NAME = gql`
-  query GetMovieByName($name: String!) {
+  query GetMovie($name: String!) {
     movie(name: $name) {
       name
       yearOfPublication
@@ -55,6 +72,12 @@ function DisplayData() {
     useLazyQuery(GET_MOVIE_BY_NAME);
 
   const [createUser] = useMutation(CREATE_USER_MUTATION);
+  if (movieData) {
+    console.log(movieData);
+  }
+  if (data) {
+    console.log(data);
+  }
 
   if (loading) {
     return <h1>Data Is Loading</h1>;
@@ -118,7 +141,8 @@ function DisplayData() {
         </button>
       </div>
       {data &&
-        data.users.map((user) => {
+        // data.users.map((user) => {
+        data.users.users.map((user) => {
           return (
             <div>
               <h1>Name: {user.name}</h1>
